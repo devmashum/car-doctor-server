@@ -62,8 +62,9 @@ async function run() {
 
         // Data MongoDB theke load korar jonno :
         app.get('/booking', async (req, res) => {
+            console.log(req.query.email)
             const result = await bookingsCollection.find().toArray();
-            console.log(req.query.email);
+
             let query = {};
             if (req.query?.email) {
                 query = { email: req.query.email }
@@ -73,6 +74,19 @@ async function run() {
 
             res.send(result);
 
+        })
+
+        // delete data from client server
+        app.delete('/booking/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await bookingsCollection.deleteOne(query)
+            res.send(result)
+        })
+
+        // Update the data
+        app.put('/booking/:id', async (req, res) => {
+            const updatedBooking = req.body;
         })
 
         // Send a ping to confirm a successful connection
