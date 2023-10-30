@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
+const cookieParser = require('cookie-parser');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const jwt = require('jsonwebtoken');
@@ -12,6 +13,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 
 
@@ -51,7 +53,7 @@ async function run() {
                     secure: false,
                     sameSite: 'none',
                 })
-            send({ success: true })
+                .send({ success: true })
         })
 
         app.get('/services', async (req, res) => {
@@ -84,16 +86,14 @@ async function run() {
 
         // Data MongoDB theke load korar jonno :
         app.get('/booking', async (req, res) => {
-            console.log(req.query.email)
+            console.log(req.query.email);
+            console.log('ttttt token', req.cookies.token)
             const result = await bookingsCollection.find().toArray();
 
             let query = {};
             if (req.query?.email) {
                 query = { email: req.query.email }
             }
-
-
-
             res.send(result);
 
         })
