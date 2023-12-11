@@ -9,12 +9,13 @@ const jwt = require('jsonwebtoken');
 
 // middleware
 app.use(cors({
-    origin: ['http://localhost:5173'],
+    origin: [
+'https://car-doctor-2b00a.web.app',
+'https://car-doctor-2b00a.firebaseapp.com'],
     credentials: true
 }));
 app.use(express.json());
 app.use(cookieParser());
-
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.oqyepgg.mongodb.net/?retryWrites=true&w=majority`;
@@ -57,7 +58,17 @@ async function run() {
         })
 
         app.get('/services', async (req, res) => {
-            const cursor = serviceCollection.find();
+            const filter = req.query;
+
+            const query = {
+
+            }
+            const options = {
+                sort: {
+                    price: filter.sort === 'asc' ? 1 : -1
+                }
+            }
+            const cursor = serviceCollection.find(query, options);
             const result = await cursor.toArray();
             res.send(result);
         })
@@ -70,15 +81,12 @@ async function run() {
                 // Include only the `title` and `imdb` fields in each returned document
                 projection: { title: 1, img: 1, price: 1, service_id: 1 },
             };
-
-
             const result = await serviceCollection.findOne(query, options);
             res.send(result);
         })
         // Booking Data send to MongoDB:
         app.post('/booking', async (req, res) => {
             const booking = req.body;
-
             const result = await bookingsCollection.insertOne(booking);
             res.send = (result);
             console.log(result);
@@ -89,7 +97,6 @@ async function run() {
             console.log(req.query.email);
             console.log('ttttt token', req.cookies.token)
             const result = await bookingsCollection.find().toArray();
-
             let query = {};
             if (req.query?.email) {
                 query = { email: req.query.email }
